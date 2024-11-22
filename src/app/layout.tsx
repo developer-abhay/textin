@@ -20,9 +20,9 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
         <TRPCReactProvider>
-          <main className="bg-black w-screen h-screen">
+          <main className=" w-screen h-screen">
             <Header />
-            <div className="h-[calc(100vh-56px)] grid grid-cols-2">
+            <div className="h-[calc(100vh-56px)] flex">
               <Sidebar />
               {children}
             </div>

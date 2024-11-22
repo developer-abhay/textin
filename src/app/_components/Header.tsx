@@ -1,4 +1,3 @@
-// Icons
 import { Bell, BotMessageSquare, CircleUserRound, EllipsisVertical, Plus, Users } from "lucide-react";
 
 function Header() {
@@ -19,8 +18,6 @@ function Header() {
                 <CircleUserRound size={32} />
             </div>
             <EllipsisVertical className="flex sm:hidden" />
-
-
         </nav>
     );
 }
