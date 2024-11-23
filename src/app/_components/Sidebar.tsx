@@ -38,6 +38,8 @@ const Sidebar = () => {
                 src={chat.avatar}
                 alt={`${chat.name}'s avatar`}
                 className="mr-3 h-10 w-10 rounded-full"
+                width={40}
+                height={40}
               />
               <div className="flex w-full flex-col">
                 <div className="flex items-center justify-between">

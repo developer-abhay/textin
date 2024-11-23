@@ -21,6 +21,8 @@ const ChatScreen = () => {
             src={selectedChat.avatar}
             alt={`${selectedChat.name}'s avatar`}
             className="mr-3 h-10 w-10 rounded-full"
+            width={40}
+            height={40}
           />
           <h2 className="text-xl font-semibold">{selectedChat.name}</h2>
         </div>
@@ -46,16 +48,14 @@ const ChatScreen = () => {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${
-              message.sender === "abhay1" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${message.sender === "abhay1" ? "justify-end" : "justify-start"
+              }`}
           >
             <div
-              className={`max-w-xs rounded-lg p-3 md:max-w-md lg:max-w-lg xl:max-w-xl ${
-                message.sender === "abhay1"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`max-w-xs rounded-lg p-3 md:max-w-md lg:max-w-lg xl:max-w-xl ${message.sender === "abhay1"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200"
+                }`}
             >
               <p>{message.content}</p>
               <p className="mt-1 text-xs opacity-75">{message.timestamp}</p>
