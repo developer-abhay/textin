@@ -7,7 +7,7 @@ export const chatRouter = createTRPCRouter({
   getActiveChatsbyUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { userId } = input
+      const { userId } = input;
 
       // Get all active chats of the user
       const userActiveChats = await ctx.db.chat.findMany({
@@ -26,8 +26,6 @@ export const chatRouter = createTRPCRouter({
           },
         },
       });
-
-
 
       return userActiveChats.map((chat) => {
         // if group return group details
@@ -72,8 +70,9 @@ export const chatRouter = createTRPCRouter({
 
   // Create A Chat
   createChat: protectedProcedure
-    .input(creatChatInput).mutation(async ({ ctx, input }) => {
-      const { participants, isGroup, adminId, groupAvatar, groupName } = input
+    .input(creatChatInput)
+    .mutation(async ({ ctx, input }) => {
+      const { participants, isGroup, adminId, groupAvatar, groupName } = input;
 
       // Checking if all Users exist
       const users = await ctx.db.user.findMany({
@@ -87,7 +86,7 @@ export const chatRouter = createTRPCRouter({
       }
 
       let chat;
-      // if Group 
+      // if Group
       if (isGroup) {
         chat = await ctx.db.chat.create({
           data: {
@@ -96,167 +95,176 @@ export const chatRouter = createTRPCRouter({
             adminId,
             groupName,
             groupAvatar,
-          }
-        })
+          },
+        });
       } else {
         // if One on One Chat
         chat = await ctx.db.chat.create({
           data: {
             participants: { connect: input.participants.map((id) => ({ id })) },
-          }
-        })
+          },
+        });
       }
-      return { message: 'Chat Created Successfully', chatId: chat.id }
+      return { message: "Chat Created Successfully", chatId: chat.id };
     }),
 
   // Add user to group
-  addToGroup: protectedProcedure.input(z.object({ groupId: z.string(), memberId: z.string() })).mutation(async ({ ctx, input }) => {
-    const { memberId, groupId } = input
-    const userId = ctx.session.user.id;
+  addToGroup: protectedProcedure
+    .input(z.object({ groupId: z.string(), memberId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { memberId, groupId } = input;
+      const userId = ctx.session.user.id;
 
-    const chat = await ctx.db.chat.findUnique({
-      where: {
-        id: groupId
-      },
-      include: { participants: true },
-    })
+      const chat = await ctx.db.chat.findUnique({
+        where: {
+          id: groupId,
+        },
+        include: { participants: true },
+      });
 
-    // Checking if chat exists
-    if (!chat) {
-      throw new Error("Chat not found.");
-    }
-
-    // Check if chat type is a group
-    if (!chat.isGroup) {
-      throw new Error("Invalid Request. This is not a group");
-    }
-
-    // verifying the admin
-    if (chat.adminId !== userId) {
-      throw new Error("You must be the admin to modify the add.");
-    }
-
-    // Checking if group is full
-    if (chat.participants.length >= 100) {
-      throw new Error("This group already has the maximum number of participants (100).");
-    }
-
-    // Checking if user already a member of the group
-    if (chat.participants.some((participant) => participant.id === memberId)) {
-      throw new Error("User is already a member of this group.");
-    }
-
-    // Adding member to the group
-    await ctx.db.chat.update({
-      where: {
-        id: groupId
-      },
-      data: {
-        participants: {
-          connect: { id: memberId }
-        }
+      // Checking if chat exists
+      if (!chat) {
+        throw new Error("Chat not found.");
       }
-    })
 
-    return { message: "User added successfully" }
+      // Check if chat type is a group
+      if (!chat.isGroup) {
+        throw new Error("Invalid Request. This is not a group");
+      }
 
-  }),
+      // verifying the admin
+      if (chat.adminId !== userId) {
+        throw new Error("You must be the admin to modify the add.");
+      }
+
+      // Checking if group is full
+      if (chat.participants.length >= 100) {
+        throw new Error(
+          "This group already has the maximum number of participants (100).",
+        );
+      }
+
+      // Checking if user already a member of the group
+      if (
+        chat.participants.some((participant) => participant.id === memberId)
+      ) {
+        throw new Error("User is already a member of this group.");
+      }
+
+      // Adding member to the group
+      await ctx.db.chat.update({
+        where: {
+          id: groupId,
+        },
+        data: {
+          participants: {
+            connect: { id: memberId },
+          },
+        },
+      });
+
+      return { message: "User added successfully" };
+    }),
 
   // Remove user from group
-  removeFromGroup: protectedProcedure.input(z.object({ groupId: z.string(), memberId: z.string() })).mutation(async ({ ctx, input }) => {
-    const { memberId, groupId } = input
-    const userId = ctx.session.user.id;
+  removeFromGroup: protectedProcedure
+    .input(z.object({ groupId: z.string(), memberId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { memberId, groupId } = input;
+      const userId = ctx.session.user.id;
 
+      const chat = await ctx.db.chat.findUnique({
+        where: {
+          id: groupId,
+        },
+        include: { participants: true },
+      });
 
-    const chat = await ctx.db.chat.findUnique({
-      where: {
-        id: groupId
-      },
-      include: { participants: true },
-    })
-
-    // Checking if chat exists
-    if (!chat) {
-      throw new Error("Chat not found.");
-    }
-
-    // Check if chat type is a group
-    if (!chat.isGroup) {
-      throw new Error("Invalid Request. This is not a group");
-    }
-
-    // verifying the admin
-    if (chat.adminId !== userId) {
-      throw new Error("You must be the admin to modify the add.");
-    }
-
-    // Checking if user not a member of the group
-    const isMember = chat.participants.some((participant) => participant.id === memberId)
-    if (!isMember) {
-      throw new Error("User is not a member of this group.");
-    }
-
-    // Remving member from the group
-    await ctx.db.chat.update({
-      where: {
-        id: groupId
-      },
-      data: {
-        participants: {
-          disconnect: { id: memberId }
-        }
+      // Checking if chat exists
+      if (!chat) {
+        throw new Error("Chat not found.");
       }
-    })
-    return { message: "User Removed successfully" }
 
-  }),
+      // Check if chat type is a group
+      if (!chat.isGroup) {
+        throw new Error("Invalid Request. This is not a group");
+      }
+
+      // verifying the admin
+      if (chat.adminId !== userId) {
+        throw new Error("You must be the admin to modify the add.");
+      }
+
+      // Checking if user not a member of the group
+      const isMember = chat.participants.some(
+        (participant) => participant.id === memberId,
+      );
+      if (!isMember) {
+        throw new Error("User is not a member of this group.");
+      }
+
+      // Remving member from the group
+      await ctx.db.chat.update({
+        where: {
+          id: groupId,
+        },
+        data: {
+          participants: {
+            disconnect: { id: memberId },
+          },
+        },
+      });
+      return { message: "User Removed successfully" };
+    }),
 
   // Leave user from group
-  leaveGroup: protectedProcedure.input(z.object({ groupId: z.string(), memberId: z.string() })).mutation(async ({ ctx, input }) => {
-    const { memberId, groupId } = input
-    const userId = ctx.session.user.id;
+  leaveGroup: protectedProcedure
+    .input(z.object({ groupId: z.string(), memberId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { memberId, groupId } = input;
+      const userId = ctx.session.user.id;
 
+      const chat = await ctx.db.chat.findUnique({
+        where: {
+          id: groupId,
+        },
+        include: { participants: true },
+      });
 
-    const chat = await ctx.db.chat.findUnique({
-      where: {
-        id: groupId
-      },
-      include: { participants: true },
-    })
-
-    // Checking if chat exists
-    if (!chat) {
-      throw new Error("Chat not found.");
-    }
-
-    // Check if chat type is a group
-    if (!chat.isGroup) {
-      throw new Error("Invalid Request. This is not a group");
-    }
-
-    // verifying the admin
-    if (chat.adminId == userId) {
-      throw new Error("Admin can't leave the group.");
-    }
-
-    // Checking if user not a member of the group
-    const isMember = chat.participants.some((participant) => participant.id === memberId)
-    if (!isMember) {
-      throw new Error("User is not a member of this group.");
-    }
-
-    // Leave group
-    await ctx.db.chat.update({
-      where: {
-        id: groupId
-      },
-      data: {
-        participants: {
-          disconnect: { id: memberId }
-        }
+      // Checking if chat exists
+      if (!chat) {
+        throw new Error("Chat not found.");
       }
-    })
-    return { message: "Group left successfully" }
 
-  })
+      // Check if chat type is a group
+      if (!chat.isGroup) {
+        throw new Error("Invalid Request. This is not a group");
+      }
+
+      // verifying the admin
+      if (chat.adminId == userId) {
+        throw new Error("Admin can't leave the group.");
+      }
+
+      // Checking if user not a member of the group
+      const isMember = chat.participants.some(
+        (participant) => participant.id === memberId,
+      );
+      if (!isMember) {
+        throw new Error("User is not a member of this group.");
+      }
+
+      // Leave group
+      await ctx.db.chat.update({
+        where: {
+          id: groupId,
+        },
+        data: {
+          participants: {
+            disconnect: { id: memberId },
+          },
+        },
+      });
+      return { message: "Group left  successfully" };
+    }),
 });
