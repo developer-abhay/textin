@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { activeChats } from "@/data/users";
 import { ListFilter, Search, SquarePen } from "lucide-react";
+import Image from "next/image";
 
 const Sidebar = () => {
   const [selectedChat, setSelectedChat] = useState(activeChats[0]!);
@@ -33,7 +34,7 @@ const Sidebar = () => {
               className={`flex cursor-pointer items-center p-3 hover:bg-gray-100 ${selectedChat.id === chat.id ? "bg-blue-100" : ""}`}
               key={chat.id}
             >
-              <img
+              <Image
                 src={chat.avatar}
                 alt={`${chat.name}'s avatar`}
                 className="mr-3 h-10 w-10 rounded-full"

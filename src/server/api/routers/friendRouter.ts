@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-export const userRouter = createTRPCRouter({
+export const friendRouter = createTRPCRouter({
   // Get All friends of a User
   getAllFriends: protectedProcedure
     .input(z.object({ userId: z.string() }))
