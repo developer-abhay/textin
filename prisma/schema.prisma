@@ -57,6 +57,7 @@ model User {
 
     accounts Account[]
     sessions Session[]
+    Chat     Chat[]
 }
 
 model Chat {
@@ -66,6 +67,13 @@ model Chat {
 
     participants User[]    @relation("userChats")
     messages     Message[] @relation("chatMessages")
+
+    isGroup     Boolean @default(false)
+    groupName   String?
+    groupAvatar String?
+
+    adminId String?
+    admin   User?   @relation(fields: [adminId], references: [id])
 }
 
 model Message {

@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const requestRouter = createTRPCRouter({
+
     // Get all received requests of a user
     getAllRequestsByUserId: protectedProcedure
         .input(z.object({ userId: z.string() }))
