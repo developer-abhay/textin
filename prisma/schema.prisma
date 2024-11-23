@@ -52,12 +52,15 @@ model User {
     chats            Chat[]     @relation("userChats")
     messages         Message[]  @relation("userMessages")
 
+    friendUser1 Friends[] @relation("UserFriend1")
+    friendUser2 Friends[] @relation("UserFriend2")
+
     accounts Account[]
     sessions Session[]
 }
 
 model Chat {
-    id        Int      @id @default(autoincrement())
+    id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -66,23 +69,39 @@ model Chat {
 }
 
 model Message {
-    id        Int      @id @default(autoincrement())
+    id        String   @id @default(cuid())
     content   String
     createdAt DateTime @default(now())
     senderId  String
-    chatId    Int
+    chatId    String
 
     sender User @relation("userMessages", fields: [senderId], references: [id])
     chat   Chat @relation("chatMessages", fields: [chatId], references: [id])
 }
 
 model Requests {
-    id         Int      @id @default(autoincrement())
+    id         String   @id @default(cuid())
     senderId   String
     receiverId String
-    status     String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+    status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
     createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
     sender   User @relation("sentRequests", fields: [senderId], references: [id])
     receiver User @relation("receivedRequests", fields: [receiverId], references: [id])
+
+    @@unique([senderId, receiverId])
+}
+
+model Friends {
+    id        String   @id @default(cuid())
+    userId1   String
+    userId2   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user1 User @relation("UserFriend1", fields: [userId1], references: [id])
+    user2 User @relation("UserFriend2", fields: [userId2], references: [id])
+
+    @@unique([userId1, userId2])
 }
