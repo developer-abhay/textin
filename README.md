@@ -1,5 +1,5 @@
 # Architecture
-![Project Architecture](images/architecture.png)
+![Project Architecture](public/architecture.png)
 
 # Create T3 App
 
